@@ -1,1 +1,3 @@
 .venv
+esg.db
+__pycache__/

@@ -1,5 +1,28 @@
+import sqlite3
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+
+con = sqlite3.connect("esg.db")
+sql = """
+CREATE TABLE IF NOT EXISTS esg (
+    id INTEGER PRIMARY KEY,
+    company_name TEXT NOT NULL,
+    industry_group TEXT,
+    country_or_region TEXT,
+    identifier TEXT,
+    risk_rating_score DECIMAL(10,2),
+    risk_rating_assessment TEXT,
+    industry_group_position INTEGER,
+    industry_group_positions_total INTEGER,
+    universe_position INTEGER,
+    universe_positions_total INTEGER,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)
+"""
+cur = con.cursor()
+cur.execute(sql)
+con.close()
 
 driver = webdriver.Chrome()
 driver.get("https://www.sustainalytics.com/esg-ratings")
@@ -78,16 +101,38 @@ for href in all_hrefs:
         universe_positions_total = "N/A"
 
     scraped_data.append(
-        {
-            "Company name": company_name,
-            "Industry group": industry_group,
-            "Country or region": country_or_region,
-            "Identifier": identifier,
-            "Risk rating score": risk_rating_score,
-            "Risk rating assessment": risk_rating_assessment,
-            "Industry group position": industry_group_position,
-            "Industry group positions total": industry_group_positions_total,
-            "Universe position": universe_position,
-            "Universe positions total": universe_positions_total,
-        }
+        (
+            company_name,
+            industry_group,
+            country_or_region,
+            identifier,
+            risk_rating_score,
+            risk_rating_assessment,
+            industry_group_position,
+            industry_group_positions_total,
+            universe_position,
+            universe_positions_total,
+        )
     )
+
+
+with sqlite3.connect("esg.db") as con:
+    cur = con.cursor()
+    for datum in scraped_data:
+        sql = """
+        INSERT INTO esg (
+            company_name,
+            industry_group,
+            country_or_region,
+            identifier,
+            risk_rating_score,
+            risk_rating_assessment,
+            industry_group_position,
+            industry_group_positions_total,
+            universe_position,
+            universe_positions_total
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """
+        cur.execute(sql, datum)
+        con.commit()
