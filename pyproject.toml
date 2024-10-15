@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "crawler-3h"
+version = "0.1.0"
+description = ""
+authors = ["chen weichen <newsforcwc@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^4.0.1"
+commitizen = "^3.29.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
